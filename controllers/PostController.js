@@ -1,4 +1,5 @@
 import PostSchema from "../models/Post.js";
+import {login} from "./UserController.js";
 
 export const create = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
     try {
-        const posts = await PostSchema.find().populate('user').exec()
+        let posts = await PostSchema.find().populate('user').exec()
         res.json(posts)
 
     } catch (err) {
@@ -63,6 +64,19 @@ export const getOne = async (req, res) => {
         console.log(err)
         res.status(500).json({
             message: "Не удалось получить пост"
+        })
+    }
+}
+export const getLastTags = async (req, res) => {
+    try {
+        const posts = await PostSchema.find().limit(5).exec()
+        const tags = posts.map(item => item.tags).flat().slice(0,5)
+        res.json(tags)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось загрузить посты"
         })
     }
 }

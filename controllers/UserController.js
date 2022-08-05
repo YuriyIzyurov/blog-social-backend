@@ -1,19 +1,13 @@
-import {validationResult} from "express-validator";
 import bcrypt from "bcrypt";
 import UserSchema from "../models/User.js";
 import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
     try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) {
-            return res.status(400).json(errors.array())
-        }
-
+        console.log(req.body)
         const password = req.body.password
         const salt = await bcrypt.genSalt(10)
         const hash = await bcrypt.hash(password, salt)
-
         const doc = new UserSchema({
             email: req.body.email,
             fullName: req.body.fullName,
@@ -41,6 +35,7 @@ export const register = async (req, res) => {
         })
     }
 }
+
 export const login = async (req, res) => {
     try {
         const user = await UserSchema.findOne({email: req.body.email})
@@ -65,7 +60,7 @@ export const login = async (req, res) => {
     } catch (err) {
         console.log(err)
         res.status(500).json({
-            message: "Не удалось авторизироваться"
+            message: "Не удалось авторизироваться"``
         })
     }
 }
@@ -81,6 +76,27 @@ export const getMe = async (req, res) => {
         console.log(err)
         res.status(500).json({
             message: "Не удалось авторизироваться"
+        })
+    }
+}
+export const addAvatar = async (req, res) => {
+    try {
+        const imageUrl = `http://localhost:4444/uploads/${req.file.originalname}`
+        await UserSchema.updateOne({
+            _id: req.userID
+        }, {
+            avatarUrl: imageUrl
+        })
+        res.json({
+            resultCode: 0,
+            messages: ['Фото успешно загружено'],
+            avatarUrl: imageUrl
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            resultCode: 1,
+            messages: ['Не удалось загрузить фото']
         })
     }
 }
