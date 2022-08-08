@@ -11,7 +11,10 @@ export const create = async (req, res) => {
             user: req.userID,
         })
         const post = await doc.save()
-        res.json(post)
+        res.json({
+            resultCode: 0,
+            data: post
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -33,6 +36,7 @@ export const getAll = async (req, res) => {
     }
 }
 export const getOne = async (req, res) => {
+
     try {
         const postId = req.params.id
         await PostSchema.findOneAndUpdate(
@@ -59,7 +63,7 @@ export const getOne = async (req, res) => {
                 }
                 res.json(doc)
             }
-        )
+        ).clone().populate('user').exec()
     } catch (err) {
         console.log(err)
         res.status(500).json({

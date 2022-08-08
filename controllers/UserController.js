@@ -71,7 +71,10 @@ export const getMe = async (req, res) => {
             return res.status(404).json({message: "Пользователь не найден"})
         }
         const {passwordHash, ...userData } = user._doc
-        res.json(userData)
+        res.json({
+            resultCode: 0,
+            data: userData,
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({

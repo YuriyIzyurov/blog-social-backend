@@ -9,9 +9,14 @@ export default (req, res, next) => {
             req.userID = decoded._id
             next()
         } catch(err) {
-            return res.status(403).json({message: "Хуевенький токен" })
+            console.log('no token')
+            return res.json({
+                resultCode: 1,
+                message: "Хуевенький токен"
+            })
         }
     } else {
+        console.log('no access')
         return res.status(403).json({message: "Нет доступа"})
     }
 

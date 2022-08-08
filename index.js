@@ -37,7 +37,7 @@ app.post('/login', loginValidation, handleValidationErrors,  UserController.logi
 app.get('/auth/me', checkAuth, UserController.getMe)
 
 app.post('/user/avatar', checkAuth, upload.single('avatar'), UserController.addAvatar)
-app.post('/upload', checkAuth, upload.single('kart2'), (req, res) => {
+app.post('/upload', checkAuth, upload.single('preview'), (req, res) => {
     res.json({
         url:`/uploads/${req.file.originalname}`
     })
@@ -55,4 +55,5 @@ app.listen(4444, (err) => {
         return console.log(err)
     }
     console.log("server is up")
+
 })
