@@ -16,3 +16,6 @@ export const postCreateValidation = [
     body('tags', 'Неверный формат тэгов').optional().isArray(),
     body('imageUrl', 'Неверная ссылка на изображение').optional().isString(),
 ]
+export const commentCreateValidation = [
+    body('text', 'Комментарий должен быть больше 1 символа').isLength({min: 2}).isString()
+]

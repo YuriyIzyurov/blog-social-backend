@@ -1,5 +1,6 @@
 import PostSchema from "../models/Post.js";
 import {login} from "./UserController.js";
+import CommentSchema from "../models/Comment.js";
 
 export const create = async (req, res) => {
     try {
@@ -25,8 +26,34 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
     try {
-        let posts = await PostSchema.find().populate('user').exec()
-        res.json(posts)
+        const {page = 1, limit = 5, searchFilter, viewed = false} = req.query
+
+        let sortParam
+        if(viewed) {
+             sortParam = {viewsCount: -1}
+        } else sortParam = {_id: -1}
+
+        const posts = await PostSchema.find()
+            .sort(sortParam)
+            .limit(limit)
+            .or([
+                {title: new RegExp(searchFilter, 'i')},
+                {tags: new RegExp(searchFilter, 'i')},
+            ])
+            .skip((page-1)*limit)
+            .populate('user')
+            .exec()
+
+        const totalCount = await PostSchema.find().or([
+            {title: new RegExp(searchFilter, 'i')},
+            {tags: new RegExp(searchFilter, 'i')},
+        ]).countDocuments({}).exec()
+
+        res.json({
+            resultCode:0,
+            totalCount,
+            posts
+        })
 
     } catch (err) {
         console.log(err)
@@ -35,35 +62,16 @@ export const getAll = async (req, res) => {
         })
     }
 }
+
 export const getOne = async (req, res) => {
 
     try {
-        const postId = req.params.id
-        await PostSchema.findOneAndUpdate(
-            {
-                _id: postId,
-            },
+       const post = await PostSchema.findByIdAndUpdate(req.params.id,
             {
                 $inc: { viewsCount: 1},
-            },
-            {
-                returnDocument: 'after',
-            },
-            (err, doc) => {
-                if (err) {
-                    console.log(err)
-                    return res.status(500).json({
-                        message: "Не удалось загрузить пост"
-                    })
-                }
-                if (!doc) {
-                    return res.status(500).json({
-                        message: " Статья не найдена"
-                    })
-                }
-                res.json(doc)
-            }
-        ).clone().populate('user').exec()
+            }).clone().populate('user').exec()
+            res.json(post)
+
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -71,11 +79,90 @@ export const getOne = async (req, res) => {
         })
     }
 }
+
 export const getLastTags = async (req, res) => {
     try {
-        const posts = await PostSchema.find().limit(5).exec()
-        const tags = posts.map(item => item.tags).flat().slice(0,5)
-        res.json(tags)
+        const posts = await PostSchema.find().sort({viewsCount: -1}).limit(5).exec()
+        const tags = posts.map(item => item.tags).flat()
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        shuffle(tags)
+        const lastTags = tags.slice(0,5)
+        res.json(lastTags)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось загрузить тэги"
+        })
+    }
+}
+export const getTopAndMyPosts = async (req, res) => {
+    try {
+        const myPosts = await PostSchema.find({user: req.userID}).sort({_id: -1}).populate('user').exec()
+        const topPosts = await PostSchema.find().sort({viewsCount: -1}).limit(3).exec()
+        res.json({
+            resultCode:0,
+            data: {
+                totalCount:myPosts.length,
+                topPosts,
+                myPosts
+            }
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось загрузить ваши посты"
+        })
+    }
+}
+export const getTopViewed = async (req, res) => {
+    try {
+        const topPosts = await PostSchema.find().sort({viewsCount: -1}).populate('user').exec()
+        //из полученного массива объектов редюсом собираем объект, в которм хранятся айди юзеров и сумма просмотров постов каждого юзера
+        let result = topPosts.reduce((obj, item) => {
+          let key = item.user.fullName
+            if(!obj.hasOwnProperty('id')){
+                obj['id'] = []
+            }
+            if (!obj.hasOwnProperty(key)) {
+                obj[key] = 0
+                let key2 = item.user.fullName
+                const person = {
+                    [key2]:item.user._id
+                }
+                obj['id'].push(person)
+            }
+            obj[key] = obj[key] + item.viewsCount
+
+            return obj
+        },{})
+        res.json({
+            resultCode:0,
+            data:result
+        })
+
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось загрузить данные"
+        })
+    }
+}
+export const getTagMatch = async (req, res) => {
+    try {
+        console.log(req.params.tag)
+        const posts = await PostSchema.find({
+            tags: { $all:[req.params.tag]}
+        }).populate('user').exec()
+
+        res.json(posts)
 
     } catch (err) {
         console.log(err)
@@ -99,15 +186,18 @@ export const remove = async (req, res) => {
                     })
                 }
                 if (!doc) {
-                    return res.status(500).json({
+                    return res.json({
+                        resultCode:1,
                         message: " Статья не найдена"
                     })
                 }
                 res.json({
-                    success: true,
+                    resultCode:0,
+                    message: "success"
                 })
             }
-        )
+        ).clone()
+        await CommentSchema.deleteMany({post: postId})
 
     } catch (err) {
         console.log(err)
@@ -132,7 +222,9 @@ export const update = async (req, res) => {
             }
         )
         res.json({
-            success: true
+            resultCode:0,
+            message: "success",
+            _id: postId
         })
     } catch (err) {
         console.log(err)

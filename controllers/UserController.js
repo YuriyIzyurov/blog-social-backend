@@ -77,7 +77,8 @@ export const getMe = async (req, res) => {
         })
     } catch (err) {
         console.log(err)
-        res.status(500).json({
+        res.json({
+            resultCode:1,
             message: "Не удалось авторизироваться"
         })
     }
