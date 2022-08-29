@@ -46,6 +46,7 @@ app.post('/upload', checkAuth, upload.single('preview'), (req, res) => {
 
 //Posts endpoint
 app.get('/posts', PostController.getAll)
+app.get('/author/:userId', PostController.getAllPostsByAuthor)
 app.get('/top',checkAuth, PostController.getTopAndMyPosts)
 app.get('/views', PostController.getTopViewed)
 app.get('/posts/:id',  PostController.getOne)

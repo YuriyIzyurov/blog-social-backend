@@ -51,8 +51,10 @@ export const getAll = async (req, res) => {
 
         res.json({
             resultCode:0,
-            totalCount,
-            posts
+            data:{
+                totalCount,
+                posts
+            }
         })
 
     } catch (err) {
@@ -70,7 +72,26 @@ export const getOne = async (req, res) => {
             {
                 $inc: { viewsCount: 1},
             }).clone().populate('user').exec()
-            res.json(post)
+            res.json({
+                resultCode:0,
+                data:post
+            })
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось получить пост"
+        })
+    }
+}
+export const getAllPostsByAuthor = async (req, res) => {
+    try {
+       const post = await PostSchema.find({user:req.params.userId}).sort({viewsCount: -1}).populate('user').exec()
+
+        res.json({
+            resultCode:0,
+            data:post
+        })
 
     } catch (err) {
         console.log(err)
@@ -92,7 +113,10 @@ export const getLastTags = async (req, res) => {
         }
         shuffle(tags)
         const lastTags = tags.slice(0,5)
-        res.json(lastTags)
+        res.json({
+            resultCode:0,
+            data: lastTags
+        })
 
     } catch (err) {
         console.log(err)
@@ -127,19 +151,25 @@ export const getTopViewed = async (req, res) => {
         //из полученного массива объектов редюсом собираем объект, в которм хранятся айди юзеров и сумма просмотров постов каждого юзера
         let result = topPosts.reduce((obj, item) => {
           let key = item.user.fullName
-            if(!obj.hasOwnProperty('id')){
-                obj['id'] = []
+            if(!obj.hasOwnProperty('top')){
+                obj['top'] = []
             }
             if (!obj.hasOwnProperty(key)) {
                 obj[key] = 0
-                let key2 = item.user.fullName
                 const person = {
-                    [key2]:item.user._id
+                    id:item.user._id,
+                    fullName:item.user.fullName,
+                    avatarUrl:item.user.avatarUrl,
+                    viewsCount:0
                 }
-                obj['id'].push(person)
+                obj['top'].push(person)
             }
             obj[key] = obj[key] + item.viewsCount
-
+            obj['top'].forEach((elem) => {
+                if(elem.fullName === key) {
+                    elem.viewsCount = elem.viewsCount + item.viewsCount
+                }
+            })
             return obj
         },{})
         res.json({
@@ -162,7 +192,10 @@ export const getTagMatch = async (req, res) => {
             tags: { $all:[req.params.tag]}
         }).populate('user').exec()
 
-        res.json(posts)
+        res.json({
+            resultCode:0,
+            data:posts
+        })
 
     } catch (err) {
         console.log(err)
@@ -193,7 +226,7 @@ export const remove = async (req, res) => {
                 }
                 res.json({
                     resultCode:0,
-                    message: "success"
+                    data: {message: "success"}
                 })
             }
         ).clone()
@@ -223,8 +256,10 @@ export const update = async (req, res) => {
         )
         res.json({
             resultCode:0,
-            message: "success",
-            _id: postId
+            data:{
+                message: "success",
+                _id: postId
+            }
         })
     } catch (err) {
         console.log(err)
