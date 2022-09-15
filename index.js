@@ -1,6 +1,6 @@
 import express from "express" //npm start start:dev - запускает отслеживание index.js в реальном времени
 import mongoose from "mongoose"
-import {commentCreateValidation, loginValidation, postCreateValidation, registerValidation} from "validations";
+import {commentCreateValidation, loginValidation, postCreateValidation, registerValidation} from "./validations.js";
 import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
 import {checkAuth, handleValidationErrors} from './utils/index.js'
@@ -65,7 +65,7 @@ app.post('/comments/:id', checkAuth, commentCreateValidation, handleValidationEr
 app.delete('/comments/:id', checkAuth, CommentController.remove)
 app.patch('/comments/:id', checkAuth,  CommentController.update)
 
-app.listen(process.env.port || 4444, (err) => {
+app.listen( process.env.PORT || 4444, (err) => {
     if(err) {
         return console.log(err)
     }
