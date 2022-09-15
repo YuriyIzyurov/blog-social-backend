@@ -12,7 +12,7 @@ export default (req, res, next) => {
             console.log('no token')
             return res.json({
                 resultCode: 1,
-                message: "Хуевенький токен"
+                message: "Нет токена"
             })
         }
     } else {

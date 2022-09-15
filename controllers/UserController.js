@@ -26,7 +26,10 @@ export const register = async (req, res) => {
 
         const {passwordHash, ...userData } = user._doc
 
-        res.json({...userData, token})
+        res.json({
+            resultCode:0,
+            data:{...userData, token}
+        })
 
     } catch (err) {
         console.log(err)
@@ -55,7 +58,10 @@ export const login = async (req, res) => {
             })
         const {passwordHash, ...userData } = user._doc
 
-        res.json({...userData, token})
+        res.json({
+            resultCode:0,
+            data:{...userData, token}
+        })
 
     } catch (err) {
         console.log(err)
@@ -79,7 +85,7 @@ export const getMe = async (req, res) => {
         console.log(err)
         res.json({
             resultCode:1,
-            message: "Не удалось авторизироваться"
+            data:{message: "Не удалось авторизироваться"}
         })
     }
 }
@@ -93,14 +99,16 @@ export const addAvatar = async (req, res) => {
         })
         res.json({
             resultCode: 0,
-            messages: ['Фото успешно загружено'],
-            avatarUrl: imageUrl
+            data: {
+                messages: ['Фото успешно загружено'],
+                avatarUrl: imageUrl
+            }
         })
     } catch (err) {
         console.log(err)
         res.status(500).json({
             resultCode: 1,
-            messages: ['Не удалось загрузить фото']
+            data:{messages: ['Не удалось загрузить фото']}
         })
     }
 }

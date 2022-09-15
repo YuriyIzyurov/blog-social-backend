@@ -72,9 +72,10 @@ export const getOne = async (req, res) => {
             {
                 $inc: { viewsCount: 1},
             }).clone().populate('user').exec()
+
             res.json({
                 resultCode:0,
-                data:post
+                data: post
             })
 
     } catch (err) {
@@ -90,7 +91,7 @@ export const getAllPostsByAuthor = async (req, res) => {
 
         res.json({
             resultCode:0,
-            data:post
+            data: post
         })
 
     } catch (err) {
@@ -125,16 +126,31 @@ export const getLastTags = async (req, res) => {
         })
     }
 }
-export const getTopAndMyPosts = async (req, res) => {
+export const getTopPosts = async (req, res) => {
+    try {
+        const topPosts = await PostSchema.find().sort({viewsCount: -1}).limit(6).exec()
+        res.json({
+            resultCode:0,
+            data: {
+                topPosts
+            }
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Не удалось загрузить топ посты"
+        })
+    }
+}
+export const getMyPosts = async (req, res) => {
     try {
         const myPosts = await PostSchema.find({user: req.userID}).sort({_id: -1}).populate('user').exec()
-        const topPosts = await PostSchema.find().sort({viewsCount: -1}).limit(3).exec()
         res.json({
             resultCode:0,
             data: {
                 totalCount:myPosts.length,
-                topPosts,
-                myPosts
+                myPosts,
             }
         })
 
@@ -149,7 +165,7 @@ export const getTopViewed = async (req, res) => {
     try {
         const topPosts = await PostSchema.find().sort({viewsCount: -1}).populate('user').exec()
         //из полученного массива объектов редюсом собираем объект, в которм хранятся айди юзеров и сумма просмотров постов каждого юзера
-        let result = topPosts.reduce((obj, item) => {
+        let posts = topPosts.reduce((obj, item) => {
           let key = item.user.fullName
             if(!obj.hasOwnProperty('top')){
                 obj['top'] = []
@@ -174,7 +190,7 @@ export const getTopViewed = async (req, res) => {
         },{})
         res.json({
             resultCode:0,
-            data:result
+            data: posts
         })
 
 
@@ -194,7 +210,7 @@ export const getTagMatch = async (req, res) => {
 
         res.json({
             resultCode:0,
-            data:posts
+            data: posts
         })
 
     } catch (err) {

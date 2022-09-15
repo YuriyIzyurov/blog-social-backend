@@ -40,14 +40,16 @@ app.get('/auth/me', checkAuth, UserController.getMe)
 app.post('/user/avatar', checkAuth, upload.single('avatar'), UserController.addAvatar)
 app.post('/upload', checkAuth, upload.single('preview'), (req, res) => {
     res.json({
-        url:`/uploads/${req.file.originalname}`
+        resultCode:0,
+        data: {url:`/uploads/${req.file.originalname}`}
     })
 })
 
 //Posts endpoint
 app.get('/posts', PostController.getAll)
 app.get('/author/:userId', PostController.getAllPostsByAuthor)
-app.get('/top',checkAuth, PostController.getTopAndMyPosts)
+app.get('/top',  PostController.getTopPosts)
+app.get('/myPosts', checkAuth, PostController.getMyPosts)
 app.get('/views', PostController.getTopViewed)
 app.get('/posts/:id',  PostController.getOne)
 app.get('/tags',  PostController.getLastTags)
@@ -60,7 +62,6 @@ app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors,
 app.get('/comments', CommentController.getAll)
 app.get('/comments/:id', CommentController.getAllCommentsOfPost)
 app.post('/comments/:id', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.create)
-app.get('/comments/:id', CommentController.getAllCommentsOfPost)
 app.delete('/comments/:id', checkAuth, CommentController.remove)
 app.patch('/comments/:id', checkAuth,  CommentController.update)
 
