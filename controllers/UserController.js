@@ -91,7 +91,7 @@ export const getMe = async (req, res) => {
 }
 export const addAvatar = async (req, res) => {
     try {
-        const imageUrl = `http://localhost:4444/uploads/${req.file.originalname}`
+        const imageUrl = `https://blog-social-backend.onrender.com/uploads/${req.file.originalname}`
         await UserSchema.updateOne({
             _id: req.userID
         }, {

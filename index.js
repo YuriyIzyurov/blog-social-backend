@@ -73,6 +73,6 @@ app.listen( process.env.PORT || 4444, (err) => {
     if(err) {
         return console.log(err)
     }
-    console.log(`server is up on ${process.env.PORT} PORT`)
+    console.log(`server is up on ${process.env.PORT} PORT, database - ${database}`)
 
 })
