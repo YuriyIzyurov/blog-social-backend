@@ -9,8 +9,9 @@ import cors from 'cors'
 
 
 dotenv.config()
+const database = process.env.MONGODB_URI
 
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(database)
     .then(() => {
         console.log("DB connected")
     })
@@ -72,6 +73,6 @@ app.listen( process.env.PORT || 4444, (err) => {
     if(err) {
         return console.log(err)
     }
-    console.log("server is up")
+    console.log(`server is up on ${process.env.PORT} PORT`)
 
 })
