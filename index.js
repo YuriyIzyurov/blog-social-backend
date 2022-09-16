@@ -6,6 +6,7 @@ import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
 import {checkAuth, handleValidationErrors} from './utils/index.js'
 import cors from 'cors'
+import * as fs from "fs";
 
 
 dotenv.config()
@@ -24,6 +25,9 @@ app.use(express.json()) // позволяет читать приходящие 
 
 const storage = multer.diskStorage({
     destination: (_,__, callback) => {
+        if(!fs.existsSync('uploads')){
+            fs.mkdirSync('uploads')
+        }
         callback(null, 'uploads')
     },
     filename: (_, file, callback) => {
