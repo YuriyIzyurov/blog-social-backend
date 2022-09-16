@@ -1,5 +1,5 @@
-import express from "express" //npm start start:dev - запускает отслеживание index.js в реальном времени
 import mongoose from "mongoose"
+import express from "express"
 import {commentCreateValidation, loginValidation, postCreateValidation, registerValidation} from "./validations.js";
 import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
