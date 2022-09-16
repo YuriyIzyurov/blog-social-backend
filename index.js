@@ -1,10 +1,12 @@
-import mongoose from "mongoose"
+
 import express from "express"
+import mongoose from "mongoose";
 import {commentCreateValidation, loginValidation, postCreateValidation, registerValidation} from "./validations.js";
 import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
 import {checkAuth, handleValidationErrors} from './utils/index.js'
 import cors from 'cors'
+
 
 
 mongoose.connect(process.env.MONGODB_URI)
