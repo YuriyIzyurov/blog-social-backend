@@ -26,7 +26,10 @@ const PostSchema = new mongoose.Schema({
         ref: 'User', //так делается связь между 2 таблицами
         required: true,
     },
-    imageUrl: String,
+    imageUrl: {
+        large: String,
+        small: String,
+    },
 },
     {
         timestamps: true,

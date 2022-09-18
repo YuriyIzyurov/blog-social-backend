@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import UserSchema from "../models/User.js";
 import jwt from "jsonwebtoken";
 
+
 export const register = async (req, res) => {
     try {
         console.log(req.body)
@@ -90,18 +91,28 @@ export const getMe = async (req, res) => {
     }
 }
 export const addAvatar = async (req, res) => {
+
     try {
-        const imageUrl = `https://blog-social-backend.onrender.com/uploads/${req.file.originalname}`
+        const {small, medium} = req.body.images[0]
+       /* const medium =  req.body.images.medium
+        const small =  req.body.images.small
+        console.log(small)*/
         await UserSchema.updateOne({
             _id: req.userID
         }, {
-            avatarUrl: imageUrl
+            avatarUrl: {
+                large:medium.path,
+                small:small.path
+            }
         })
         res.json({
             resultCode: 0,
             data: {
                 messages: ['Фото успешно загружено'],
-                avatarUrl: imageUrl
+                avatarUrl: {
+                    large:medium.path,
+                    small:small.path
+                }
             }
         })
     } catch (err) {

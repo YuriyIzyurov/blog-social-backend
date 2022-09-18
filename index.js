@@ -4,9 +4,9 @@ import dotenv from "dotenv"
 import {commentCreateValidation, loginValidation, postCreateValidation, registerValidation} from "./validations.js";
 import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
-import {checkAuth, handleValidationErrors} from './utils/index.js'
+import {checkAuth, handleValidationErrors, resizerImages} from './utils/index.js'
 import cors from 'cors'
-import * as fs from "fs";
+import AWS from "aws-sdk"
 
 
 dotenv.config()
@@ -23,7 +23,7 @@ mongoose.connect(database)
 const app = express()
 app.use(express.json()) // позволяет читать приходящие json данные
 
-const storage = multer.diskStorage({
+/*const storage = multer.diskStorage({
     destination: (_,__, callback) => {
         if(!fs.existsSync('uploads')){
             fs.mkdirSync('uploads')
@@ -31,25 +31,40 @@ const storage = multer.diskStorage({
         callback(null, 'uploads')
     },
     filename: (_, file, callback) => {
-        callback(null, file.originalname)
+        callback(null, file.originalname + Date.now())
     },
-})
+})*/
 
-const upload = multer({storage})
+//const upload = multer({storage})
+const multerStorage = multer.memoryStorage();
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith("image")) {
+        cb(null, true);
+    } else {
+        cb("Not an image! Please upload only images.", false);
+    }
+};
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter,
+});
 
-
-app.use('/uploads', express.static('uploads')) //при получении get запроса на uploads проверяет наличие файла в локальных папках
+//app.use(express.static('uploads')) //при получении get запроса на uploads проверяет наличие файла в локальных папках
 app.use(cors()) //отключить политику корс при запросе с локалхоста на локалхост
+
+app.use('*/uploads/original',express.static('uploads/original'));
+app.use('*/uploads/medium',express.static('uploads/medium'));
+app.use('*/uploads/small',express.static('uploads/small'));
 
 //Auth endpoint
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register )
 app.post('/login', loginValidation, handleValidationErrors,  UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
-app.post('/user/avatar', checkAuth, upload.single('avatar'), UserController.addAvatar)
-app.post('/upload', checkAuth, upload.single('preview'), (req, res) => {
+app.post('/user/avatar', checkAuth, upload.single('avatar'), resizerImages, UserController.addAvatar)
+app.post('/upload', checkAuth, upload.single('preview'), resizerImages, (req, res) => {
     res.json({
         resultCode:0,
-        data: {url:`/uploads/${req.file.originalname}`}
+        data: req.body.images[0]
     })
 })
 
@@ -77,6 +92,6 @@ app.listen( process.env.PORT || 4444, (err) => {
     if(err) {
         return console.log(err)
     }
-    console.log(`server is up on ${process.env.PORT} PORT, database - ${database}`)
+    console.log(`server is up on ${process.env.PORT || 4444} PORT, database - ${database}`)
 
 })
