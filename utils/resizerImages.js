@@ -12,8 +12,8 @@ export default async (req, res, next) => {
         },
         {
             path: "medium",
-            width: 400,
-            height: 250,
+            width: 800,
+            height: 450,
         },
         {
             path: "small",
