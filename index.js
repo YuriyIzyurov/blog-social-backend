@@ -6,7 +6,7 @@ import multer from "multer"
 import {UserController, PostController, CommentController} from './controllers/index.js'
 import {checkAuth, handleValidationErrors, resizerImages} from './utils/index.js'
 import cors from 'cors'
-import AWS from "aws-sdk"
+
 
 
 dotenv.config()
@@ -61,12 +61,9 @@ app.post('/auth/register', registerValidation, handleValidationErrors, UserContr
 app.post('/login', loginValidation, handleValidationErrors,  UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
 app.post('/user/avatar', checkAuth, upload.single('avatar'), resizerImages, UserController.addAvatar)
-app.post('/upload', checkAuth, upload.single('preview'), resizerImages, (req, res) => {
-    res.json({
-        resultCode:0,
-        data: req.body.images[0]
-    })
-})
+app.post('/upload', checkAuth, upload.single('preview'), resizerImages, UserController.uploadFile)
+app.delete('/upload/:id', checkAuth, UserController.deleteFile)
+
 
 //Posts endpoint
 app.get('/posts', PostController.getAll)

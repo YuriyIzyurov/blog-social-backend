@@ -8,10 +8,7 @@ export const create = async (req, res) => {
         const doc = new PostSchema({
             title: req.body.title,
             text: req.body.text,
-            imageUrl: {
-                large: req.body.imageUrl,
-                small: req.body.imageUrl
-            },
+            imageUrl: req.body.imageUrl,
             tags: req.body.tags,
             user: req.userID,
         })
@@ -179,7 +176,7 @@ export const getTopViewed = async (req, res) => {
                 const person = {
                     id:item.user._id,
                     fullName:item.user.fullName,
-                    avatarUrl:item.user.avatarUrl,
+                    avatarUrl:item.user.avatarUrl.small,
                     viewsCount:0
                 }
                 obj['top'].push(person)

@@ -14,7 +14,7 @@ export const postCreateValidation = [
     body('title', 'Введите заголовок статьи').isLength({min: 3}).isString(),
     body('text', 'Введите текст статьи').isLength({min: 10}).isString(),
     body('tags', 'Неверный формат тэгов').optional().isArray(),
-    body('imageUrl', 'Неверная ссылка на изображение').optional().isString(),
+    body('imageUrl', 'Неверная ссылка на изображение').optional().isObject(),
 ]
 export const commentCreateValidation = [
     body('text', 'Комментарий должен быть больше 1 символа').isLength({min: 2}).isString()

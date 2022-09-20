@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import UserSchema from "../models/User.js";
 import jwt from "jsonwebtoken";
-
+import fs from 'fs'
 
 export const register = async (req, res) => {
     try {
@@ -94,9 +94,6 @@ export const addAvatar = async (req, res) => {
 
     try {
         const {small, medium} = req.body.images[0]
-       /* const medium =  req.body.images.medium
-        const small =  req.body.images.small
-        console.log(small)*/
         await UserSchema.updateOne({
             _id: req.userID
         }, {
@@ -120,6 +117,52 @@ export const addAvatar = async (req, res) => {
         res.status(500).json({
             resultCode: 1,
             data:{messages: ['Не удалось загрузить фото']}
+        })
+    }
+}
+export const uploadFile = (req, res) => {
+    try {
+        res.json({
+            resultCode:0,
+            data: req.body.images[0]
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            resultCode: 1,
+            data:{messages: ['Не удалось загрузить фото']}
+        })
+    }
+}
+export const deleteFile = (req, res) => {
+    try {
+        const originalId = req.params.id
+        const mediumId = originalId.replace('original','medium')
+        const smallId = originalId.replace('original','small')
+
+        const originalFile = `./uploads/original/${originalId}`
+        const mediumFile = `./uploads/medium/${mediumId}`
+        const smallFile = `./uploads/small/${smallId}`
+
+        const errorHandler = (err) => {
+            if (err) {
+                console.error(err)
+            }
+        }
+
+        fs.unlink(originalFile, errorHandler)
+        fs.unlink(mediumFile, errorHandler)
+        fs.unlink(smallFile, errorHandler)
+
+        res.json({
+            resultCode:0,
+            data: {messages: ['Успешно удалено']}
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            resultCode: 1,
+            data:{messages: ['Не удалось удалить изображение']}
         })
     }
 }
