@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
         large: String,
         small: String
     },
+    socialId: Number
 },
     {
         timestamps: true,

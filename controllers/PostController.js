@@ -177,6 +177,7 @@ export const getTopViewed = async (req, res) => {
                     id:item.user._id,
                     fullName:item.user.fullName,
                     avatarUrl:item.user.avatarUrl.small,
+                    socialId:item.user.socialId,
                     viewsCount:0
                 }
                 obj['top'].push(person)
