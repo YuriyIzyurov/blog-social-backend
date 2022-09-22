@@ -24,10 +24,10 @@ export default async (req, res, next) => {
 
     const uploadPath = `uploads`;
 
-    /*const fileUrl = `${req.protocol}://${req.get(
+    const fileUrl = `${req.protocol}://${req.get(
         "host"
-    )}/uploads`;*/
-    const fileUrl = "https://raw.githubusercontent.com/YuriyIzyurov/blog-social-backend/main/uploads";
+    )}/uploads`;
+    //const fileUrl = "https://raw.githubusercontent.com/YuriyIzyurov/blog-social-backend/main/uploads";
 
     // sharp options
     const sharpOptions = {
