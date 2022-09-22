@@ -190,6 +190,7 @@ export const getTopViewed = async (req, res) => {
             })
             return obj
         },{})
+        posts.top.sort((a,b) => b.viewsCount - a.viewsCount)
         res.json({
             resultCode:0,
             data: posts
