@@ -44,11 +44,17 @@ export const login = async (req, res) => {
     try {
         const user = await UserSchema.findOne({email: req.body.email})
         if(!user) {
-            return res.status(400).json({message: "Неверный логин или пароль"})
+            return res.json({
+                resultCode:1,
+                message: "Неверный логин или пароль"
+            })
         }
         const isValidPass = await bcrypt.compare(req.body.password, user._doc.passwordHash)
         if(!isValidPass) {
-            return res.status(400).json({message: "Неверный логин или пароль"})
+            return res.json({
+                resultCode:1,
+                message: "Неверный логин или пароль"
+            })
         }
         const token = jwt.sign({
                 _id: user._id,
