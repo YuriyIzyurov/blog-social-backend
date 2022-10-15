@@ -23,19 +23,6 @@ mongoose.connect(database)
 const app = express()
 app.use(express.json()) // позволяет читать приходящие json данные
 
-/*const storage = multer.diskStorage({
-    destination: (_,__, callback) => {
-        if(!fs.existsSync('uploads')){
-            fs.mkdirSync('uploads')
-        }
-        callback(null, 'uploads')
-    },
-    filename: (_, file, callback) => {
-        callback(null, file.originalname + Date.now())
-    },
-})*/
-
-//const upload = multer({storage})
 const multerStorage = multer.memoryStorage();
 const multerFilter = (req, file, cb) => {
     if (file.mimetype.startsWith("image")) {
